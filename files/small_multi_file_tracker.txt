@@ -1,0 +1,26 @@
+{
+         "announce" => "http://tracker.mininova.org/announce",
+          "comment" => "Auto-generated torrent by Mininova.org CD",
+    "creation date" => 1220221482,
+             "info" => {
+               "files" => [
+            [0] {
+                "length" => 291,
+                  "path" => [
+                    [0] "Distributed by Mininova.txt"
+                ]
+            },
+            [1] {
+                "length" => 225047,
+                  "path" => [
+                    [0] "TorrentFreak BitTorrent Speed Tips 101.pdf"
+                ]
+            }
+        ],
+                "name" => "How To Speed Up Your BitTorrent Downloads",
+        "piece length" => 1048576,
+              "pieces" => "\xDD\x16\xF3\x81\xA1l\"u\xFF\b\x83\n\xCB\xC9\x16y\xE6\xC2#\xFD"
+    },
+           "locale" => "en",
+            "title" => "How To Speed Up Your BitTorrent Downloads"
+}

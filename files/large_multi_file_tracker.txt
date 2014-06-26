@@ -1,0 +1,339 @@
+{
+         "announce" => "http://tracker.mininova.org/announce",
+          "comment" => "Auto-generated torrent by Mininova.org CD",
+    "creation date" => 1238447393,
+             "info" => {
+               "files" => [
+            [ 0] {
+                "length" => 291,
+                  "path" => [
+                    [0] "Distributed by Mininova.txt"
+                ]
+            },
+            [ 1] {
+                "length" => 558455,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "EngelsDialectics_of_Nature_part.pdf"
+                ]
+            },
+            [ 2] {
+                "length" => 1335860,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engels_Anti_Duhring.pdf"
+                ]
+            },
+            [ 3] {
+                "length" => 449757,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engels_Socialism_Utopian_and_Scientific.pdf"
+                ]
+            },
+            [ 4] {
+                "length" => 352333,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engels_Synopsis_of_Capital.pdf"
+                ]
+            },
+            [ 5] {
+                "length" => 142980,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engels_The_Death_of_Karl_Marx.pdf"
+                ]
+            },
+            [ 6] {
+                "length" => 491138,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engels_The_Origin_of_the_Family_Private_Property_and_the_Stat.pdf"
+                ]
+            },
+            [ 7] {
+                "length" => 746036,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engles_Condition_of_the_Working_Class_in_England.pdf"
+                ]
+            },
+            [ 8] {
+                "length" => 130885,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Engles_The_Peasant_Question_in_France_and_Germany.pdf"
+                ]
+            },
+            [ 9] {
+                "length" => 331740,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Marx_Articles_from_the_Labour_Standard.pdf"
+                ]
+            },
+            [10] {
+                "length" => 356726,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Marx_Ludwig_Feurbach_and_the_End_of_German_Classical_Philosop.pdf"
+                ]
+            },
+            [11] {
+                "length" => 112253,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Marx_On_the_Histsory_of_Early_Christianity.pdf"
+                ]
+            },
+            [12] {
+                "length" => 319995,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Marx_The_Housing_Question.pdf"
+                ]
+            },
+            [13] {
+                "length" => 269596,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Engels",
+                    [2] "Marx_vs_Bretano.pdf"
+                ]
+            },
+            [14] {
+                "length" => 576133,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Communist manifest.pdf"
+                ]
+            },
+            [15] {
+                "length" => 320186,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Articles_from_the_German_French_Yearbooks.pdf"
+                ]
+            },
+            [16] {
+                "length" => 1075226,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Articles_from_the_NRZ.pdf"
+                ]
+            },
+            [17] {
+                "length" => 2839568,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Capital_Vol_1.pdf"
+                ]
+            },
+            [18] {
+                "length" => 1195835,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Capital_Vol_2.pdf"
+                ]
+            },
+            [19] {
+                "length" => 2084401,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Capital_Vol_3.pdf"
+                ]
+            },
+            [20] {
+                "length" => 340329,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Conflict_with_Bukunin.pdf"
+                ]
+            },
+            [21] {
+                "length" => 547979,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Contribution_to_the_Critique_of_Political_Economy.pdf"
+                ]
+            },
+            [22] {
+                "length" => 663881,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Critique_of_Hegels_Philosophy_of_Right.pdf"
+                ]
+            },
+            [23] {
+                "length" => 139790,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Critque_of_the_Gotha_Programme.pdf"
+                ]
+            },
+            [24] {
+                "length" => 607577,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Economic_and_Philosophical_Mauscripts.pdf"
+                ]
+            },
+            [25] {
+                "length" => 311337,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Engels_Writings_on_the_North_American_Civil_War.pdf"
+                ]
+            },
+            [26] {
+                "length" => 1894595,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Grundrisse.pdf"
+                ]
+            },
+            [27] {
+                "length" => 162512,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_James_MIll.pdf"
+                ]
+            },
+            [28] {
+                "length" => 5355074,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Mathematical_Manuscripts_1881.pdf"
+                ]
+            },
+            [29] {
+                "length" => 396520,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_On_freedom_of_the_Press.pdf"
+                ]
+            },
+            [30] {
+                "length" => 333680,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Poverty_of_Philosophy.pdf"
+                ]
+            },
+            [31] {
+                "length" => 377721,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Rheinishe_Zeitung.pdf"
+                ]
+            },
+            [32] {
+                "length" => 377853,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_The_Civil_War_in_France.pdf"
+                ]
+            },
+            [33] {
+                "length" => 606942,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_The_Class_Struggle_in_France.pdf"
+                ]
+            },
+            [34] {
+                "length" => 1611145,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_The_First_International.pdf"
+                ]
+            },
+            [35] {
+                "length" => 215456,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_The_German_Ideology.pdf"
+                ]
+            },
+            [36] {
+                "length" => 451475,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_The_Hague_Congress.pdf"
+                ]
+            },
+            [37] {
+                "length" => 319702,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_The_Holy_Family.pdf"
+                ]
+            },
+            [38] {
+                "length" => 195370,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Wage_Labour_and_Capital.pdf"
+                ]
+            },
+            [39] {
+                "length" => 132182,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Karl Marx",
+                    [2] "Marx_Young_Marx.pdf"
+                ]
+            },
+            [40] {
+                "length" => 2843240,
+                  "path" => [
+                    [0] "Marx Engels",
+                    [1] "Marx_Engels_Correspondence.pdf"
+                ]
+            }
+        ],
+                "name" => "Karl Marx and Friedrich Engels - Ebook Collection",
+        "piece length" => 1048576,
+              "pieces" => " /k\xC06~b\x19iHH\xB3k\xE2\xA4E\xB93\x9Bs\xDE\x15\xE4\x9E\x01\xE4\"j}t\xFE\x025\xFE#\x1F\x87P9wZ\x93\x8A\xD5-\xCE\x8B\xF3\xAC\xFD\x8Ed\xD5o\xE2\x8D5\xFBO0\xE0\xF5\xBB\x03\x1F\xC9\x12?\xA9\x9FC\v\x87J\xB8\xFF\xDDy\xB1\xEA\xC0\xAF\xF0\xB6Z\xE3\xAE\x8A\xA3\x98m\xC7\xC8\":\xE7\xC6\x93\x92\xD9\x03a\x19\x0F\xEF\xC3\x8D\x120\x04\xAAN\tTu\x8Ah\xF5\x90\xAE1\x17\x8B\xC4\xA3\x81KYl\xC2\x9Awk\xD5\xF1\xFE\xA6~\x9D\x97\xAF\xAC]\x13\xD8\xFD\xF3\xCB\x0Ee\xA1\xDB\xE0\x80\xA9\xF7m\x93\x88\xC7\xCC\xF4\xD92\xAF_,:\xBD\xC5'\xD2A\xA1R\xD8\x102\xCC\x00h-\a!\xBE\xE9(\xD7\xC2K,|H\x8F~\x1E.\x87\xFA\xBE\xBF\xB3\x11\xE8Q\xA3\xC6\x9F\x93\xFE\x8A\x06\x95\xCD#C\xD0-;\x84m\a\x8F\xCB\xC1x\xB4y\xC9\xFD\x9F\xD0\xCBgu\xE2(_\x88\xC3\e\xA2\x91\x11H\b\xE8@/%\xC4[\xE0\xB9C`F\xC2U\xEF\x9A\x83kJ\xC1x\x14\xFB\x89#s\xD3\xA6!WvV\xBC\xFA\xDE\xE0uw\xD6\x12\xF6\xE20\xAC\xE8P\x8F\xCC\x17\v\xBDB3\xA6\xB5\xF6\xAD\x860\xAF\xC1\xC1i-\f\xB3^s\xC4R\x16$\xA6\xD3;\x0E\x945\x04v\xD2L\xD2`=\vT\xDC\xA2P\xA3\x83\xC3\x88\x97V9k\"\xF7.n\xF7\x1E\xCD\xA5B\x1E\x11\xB0E\xB7R\xC0\x95nT1\xB5\xED\xB2\xE9\x88\x9Ca\x06\xD5\xC2C\\\xB0\xC9V\xB4\x16\xCA\e\n\xEB\xC4\x9DB\xCC$f\xE0\xDE\x8Cv\x19W\xD2]\x13f[T\x9C\xCF\x86.\xAC\x95\xFD,\xE0f\xFA\xEF\xE5\x1C\x0F<t\x02=\xB3\xB5Q\xBA\xAA\xC95\xE9\xD6\xDB\xC9d\xEA\x06_\xC8\x8AX\xEF\xDC\x96W\xC9{\xE62\x9B/H(\x13\xCF\xEA\xBF0k\xEB\x03\xEF\x898\xD6oK\xEC\xD5(\xAFU\x98V\xEFF\xA9z \x859F\xCF\xD1\xD4\x90B\xFE\xE7!f\xB8\x17T\xC7\x89`\xF3\xF3b\x7F0O\xD5i6\xBF\x81\xB4\xDD\x12\xF6M\x1F}^=\x9D\x85\xD5\xD2CU\xE5\xE8\x87\xEE\x95\x01FS$\xBC\xA9\xF3\x01\x9D\xE2\xE0p\xD5\x1D_\x17\x01\xCC'$b\n\x16\xB28\fuY\x01\xD3\x8C\xC0\xA6!\a\xF4\xA9p\xA5\xB2\x01o\xF0v\x04\x9B-\xED\xAE\xD95\xDC{b\xEBH\x94\x1F9\xBA\x92\xB6.\xF1\x8A\xDF]\x10`O\x96A\xE7\x10\xA0\xECQL\xF0\xE0\xFC5\xE2\xEAJ\xA7\xECE\x18\xA5A\xA2\x1D\xB0"
+    },
+           "locale" => "en",
+            "title" => "Karl Marx and Friedrich Engels - Ebook Collection"
+}

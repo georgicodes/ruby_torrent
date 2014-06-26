@@ -4,24 +4,33 @@ require 'SecureRandom'
 
 class MetaInfo
 
+  TorrentFile = Struct.new(:length, :path)
+
   attr_reader :announce, :encoded, :length
 
   def initialize(encoded_contents, args)
     # refactor this constructor
     @encoded = encoded_contents
     @decoded_hash = args
+    @files = []
     init_base_args(args)
     init_info_hash_args(args)
   end
 
   def init_info_hash_args(args)
     info_hash = args["info"]
-    @name = info_hash["name"]
-    @piece_length = info_hash["piece length"]
-    @length = info_hash["length"]
 
     # TODO implement multi files as they are represented differently
+    info_hash["files"].each do |item|
+      puts "#{item}"
+      @files << TorrentFile.new(item["length"], item["path"])
+    end
+
+    @name = info_hash["name"]
+    @piece_length = info_hash["piece length"]
     @pieces = info_hash["pieces"]
+    @length = info_hash["length"]
+    @length ||= calculate_length
   end
 
   def init_base_args(args)
@@ -30,6 +39,12 @@ class MetaInfo
     @title = args["title"]
     @comment = args["comment"]
     @creation_date = args["creation date"]
+  end
+
+  def calculate_length
+    @files.reduce(0) do |memo, file|
+      memo += file.length
+    end
   end
 
   def self.create_from_file(path=nil)
@@ -56,12 +71,17 @@ class MetaInfo
   def compute_hash_on_info
     #TODO refacotr method
     decoded_info_hash = @decoded_hash["info"]
+    puts "decoded #{@decoded_hash["info"]}"
     encoded_info_hash = MetaInfo.encode(decoded_info_hash)
-    Digest::SHA1.base64digest encoded_info_hash
+    puts "#####################"
+    puts "encoded has #{encoded_info_hash}"
+    sha = Digest::SHA1.digest encoded_info_hash
+    puts "$$$$$$$$ #{sha.inspect}"
+    sha
   end
 
   def client_id
-    "GK-" + SecureRandom.urlsafe_base64(17)
+    "a" * 20
   end
 
 end
