@@ -4,10 +4,13 @@ require 'net/http'
 require 'cgi'
 require 'encoder'
 require 'file_utility'
+require 'socket'
 
 class TorrentClient
   include Encoder
   include FileUtility
+
+  PeerAddress = Struct.new(:host, :port)
 
   def initialize(path=nil)
     if (FileUtility.file_useable?(path))
@@ -23,7 +26,7 @@ class TorrentClient
     # connect to tracker
     # decode response from tracker
     tracker_response = connect_to_tracker
-    Encoder.decode(tracker_response)
+    extract_hosts_from_tracker_response(tracker_response)
   end
 
   def connect_to_tracker
@@ -55,5 +58,40 @@ class TorrentClient
     puts "Tracker URI is: #{uri}"
     return uri
   end
+
+  # peers: (binary model) Instead of using the dictionary model described above,
+  # the peers value may be a string consisting of multiples of 6 bytes.
+  # First 4 bytes are the IP address and last 2 bytes are the port number.
+  # All in network (big endian) notation.
+
+  # This involves changing the peer string from unicode (binary model)
+  # to a network(?) model(x.x.x.x:y). From the spec: 'First 4 bytes are the IP address and
+  # last 2 bytes are the port number'
+  def extract_hosts_from_tracker_response(tracker_response)
+    peers_hash = Encoder.decode(tracker_response)
+    peers = peers_hash["peers"]
+    num_hosts = peers_hash["complete"] + peers_hash["incomplete"]
+    ap peers
+
+    peers_array = []
+    peers.each_byte do|b|
+      peers_array << b
+    end
+
+    ip_addresses = []
+    num_hosts.times {
+      ip_address = peers_array.shift(4).join(".")
+      port = (peers_array.shift * 256) + peers_array.shift
+      ip_addresses << PeerAddress.new(ip_address.to_s, port)
+    }
+    puts ip_addresses
+
+    client_socket = TCPSocket.new(ip_addresses[0].host, ip_addresses[0].port)
+    client_socket.write("not the right message")
+    client_socket.close_write # Send EOF after writing the request.
+
+    puts client_socket.read # Read until EOF to get the response.
+  end
+
 
 end
