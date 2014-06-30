@@ -50,8 +50,8 @@ class TorrentClient
 
   def build_tracker_request_uri
     uri = URI(@meta_info.announce)
-    params = {:info_hash => @meta_info.sha_info_hash,
-              :peer_id => @meta_info.client_id,
+    params = {:info_hash => @meta_info.info_hash,
+              :peer_id => @meta_info.peer_id,
               :left => @meta_info.length.to_s
     }
     uri.query = URI.encode_www_form(params)
@@ -71,7 +71,6 @@ class TorrentClient
     peers_hash = Encoder.decode(tracker_response)
     peers = peers_hash["peers"]
     num_hosts = peers_hash["complete"] + peers_hash["incomplete"]
-    ap peers
 
     peers_array = []
     peers.each_byte do|b|
@@ -86,11 +85,19 @@ class TorrentClient
     }
     puts ip_addresses
 
-    client_socket = TCPSocket.new(ip_addresses[0].host, ip_addresses[0].port)
-    client_socket.write("not the right message")
+    puts "opening socket"
+    client_socket = TCPSocket.new(ip_addresses[2].host, ip_addresses[2].port)
+    puts "opened socket"
+    handshake_message = @meta_info.construct_handshake_message
+    puts "======= sending message ========"
+    puts handshake_message.inspect
+    client_socket.write(handshake_message)
     client_socket.close_write # Send EOF after writing the request.
 
-    puts client_socket.read # Read until EOF to get the response.
+    response = client_socket.read # Read until EOF to get the response.
+    puts "======= response received ========"
+    puts response.inspect
+
   end
 
 
