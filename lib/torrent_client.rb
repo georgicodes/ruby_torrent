@@ -1,14 +1,14 @@
 require 'meta_info'
+require 'encoder'
+require 'file_utility'
+require 'message'
+require 'message_dispatcher'
 require "awesome_print"
 require 'net/http'
 require 'cgi'
-require 'encoder'
-require 'file_utility'
 require 'socket'
 
 class TorrentClient
-  include Encoder
-  include FileUtility
 
   PeerAddress = Struct.new(:host, :port)
 
@@ -23,10 +23,28 @@ class TorrentClient
   end
 
   def launch!
-    # connect to tracker
-    # decode response from tracker
+    # 1. connect to tracker
+    # 2. decode response from tracker
+    # 3. send handshake message to single peer
+    # 4. error check handshake response from peer
+    # 5. send interested message to peer
     tracker_response = connect_to_tracker
-    extract_hosts_from_tracker_response(tracker_response)
+    peers = extract_peers_from_tracker_response(tracker_response)
+    @peer = peers[1]
+    handshake_response = send_handshake_to_single_peer()
+    # verify_handshake_response(handshake_response) # TODO: implement?
+    send_interested_message_to_peer
+  end
+
+  # <length prefix><message ID><payload>.
+  # The length prefix is a four byte big-endian value.
+  # The message ID is a single decimal byte.
+  # The payload is message dependent.
+  def send_interested_message_to_peer
+    message_interested = Message::Interested.new
+    ap "Interested message #{message_interested.to_s}"
+    client = MessageDispatcher::Client.new(@peer.host, @peer.port)
+    client.request(message_interested.to_s)
   end
 
   def connect_to_tracker
@@ -63,11 +81,8 @@ class TorrentClient
   # the peers value may be a string consisting of multiples of 6 bytes.
   # First 4 bytes are the IP address and last 2 bytes are the port number.
   # All in network (big endian) notation.
-
-  # This involves changing the peer string from unicode (binary model)
-  # to a network(?) model(x.x.x.x:y). From the spec: 'First 4 bytes are the IP address and
-  # last 2 bytes are the port number'
-  def extract_hosts_from_tracker_response(tracker_response)
+  #TODO: refactor, smaller and should this be all in one class?
+  def extract_peers_from_tracker_response(tracker_response)
     peers_hash = Encoder.decode(tracker_response)
     peers = peers_hash["peers"]
     num_hosts = peers_hash["complete"] + peers_hash["incomplete"]
@@ -83,11 +98,14 @@ class TorrentClient
       port = (peers_array.shift * 256) + peers_array.shift
       ip_addresses << PeerAddress.new(ip_address.to_s, port)
     }
-    puts ip_addresses
+    return ip_addresses
+  end
 
-    puts "opening socket"
-    client_socket = TCPSocket.new(ip_addresses[2].host, ip_addresses[2].port)
-    puts "opened socket"
+  def send_handshake_to_single_peer()
+    puts "======= opening socket on: #{@peer.host}:#{@peer.port} ========"
+    client_socket = TCPSocket.new(@peer.host, @peer.port)
+    puts "======= opened socket ========"
+
     handshake_message = @meta_info.construct_handshake_message
     puts "======= sending message ========"
     puts handshake_message.inspect
@@ -97,8 +115,11 @@ class TorrentClient
     response = client_socket.read # Read until EOF to get the response.
     puts "======= response received ========"
     puts response.inspect
+    if (!response.nil?)
+      return -1
+    end
 
+    return response
   end
-
 
 end

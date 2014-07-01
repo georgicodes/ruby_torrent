@@ -4,8 +4,8 @@ require 'SecureRandom'
 require 'encoder'
 
 class MetaInfo
-  include Encoder
 
+  #TODO: refactor this into own class? perhaps a message type class?
   # handshake: <pstrlen><pstr><reserved><info><peer_id>
   #
   # pstrlen: string length of <pstr>, as a single raw byte
@@ -15,7 +15,6 @@ class MetaInfo
   #    This is the same info_hash that is transmitted in tracker requests.
   # peer_id: 20-byte string used as a unique ID for the client.
   #    This is usually the same peer_id that is transmitted in tracker requests
-
   HANDSHAKE_PSTRLEN = 19.chr
   HANDSHAKE_PSTR = "BitTorrent protocol"
   HANDSHAKE_RESERVED = "\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -63,12 +62,9 @@ class MetaInfo
     @length ||= calculate_length
   end
 
+  # TODO: should be refactored to own class?
   def construct_handshake_message
-    msg = HANDSHAKE_PSTRLEN + HANDSHAKE_PSTR + HANDSHAKE_RESERVED + info_hash + peer_id
-    len = 49 + HANDSHAKE_PSTR.length
-    actual_length = msg.length
-    puts "Expected length of handshake #{len} and actual length is #{actual_length}"
-    msg
+    HANDSHAKE_PSTRLEN + HANDSHAKE_PSTR + HANDSHAKE_RESERVED + info_hash + peer_id
   end
 
   private
