@@ -2,11 +2,11 @@ require 'meta_info'
 require 'encoder'
 require 'file_utility'
 require 'message'
-require 'message_dispatcher'
 require "awesome_print"
 require 'net/http'
 require 'cgi'
 require 'socket'
+require 'peer'
 
 class TorrentClient
 
@@ -20,31 +20,38 @@ class TorrentClient
       puts "File not useable, exiting."
       return -1
     end
+    @file_is_downloaded = false
   end
 
   def launch!
-    # 1. connect to tracker
-    # 2. decode response from tracker
-    # 3. send handshake message to single peer
-    # 4. error check handshake response from peer
-    # 5. send interested message to peer
-    tracker_response = connect_to_tracker
-    peers = extract_peers_from_tracker_response(tracker_response)
-    @peer = peers[1]
-    handshake_response = send_handshake_to_single_peer()
-    # verify_handshake_response(handshake_response) # TODO: implement?
-    send_interested_message_to_peer
+    # TODO: refactor file is downloaded part
+    until @file_is_downloaded
+      # 1. connect to tracker
+      tracker_response = connect_to_tracker
+
+      # 2. decode response from tracker
+      peers = extract_peers_from_tracker_response(tracker_response)
+      @peer = peers[9]
+
+      # 3. send handshake message to single peer
+      send_handshake_to_single_peer()
+
+      # 4. error check handshake response from peer?
+      # TODO: implement? Needs to be done for trackers that give peer dictionary
+
+      # 5. send interested message to peer
+    end
   end
 
-  # <length prefix><message ID><payload>.
   # The length prefix is a four byte big-endian value.
   # The message ID is a single decimal byte.
   # The payload is message dependent.
   def send_interested_message_to_peer
     message_interested = Message::Interested.new
     ap "Interested message #{message_interested.to_s}"
-    client = MessageDispatcher::Client.new(@peer.host, @peer.port)
-    client.request(message_interested.to_s)
+    return message_interested
+    # client = MessageDispatcher::Client.new(@peer.host, @peer.port)
+    # client.request(message_interested.to_s)
   end
 
   def connect_to_tracker
@@ -88,7 +95,7 @@ class TorrentClient
     num_hosts = peers_hash["complete"] + peers_hash["incomplete"]
 
     peers_array = []
-    peers.each_byte do|b|
+    peers.each_byte do |b|
       peers_array << b
     end
 
@@ -102,24 +109,9 @@ class TorrentClient
   end
 
   def send_handshake_to_single_peer()
-    puts "======= opening socket on: #{@peer.host}:#{@peer.port} ========"
-    client_socket = TCPSocket.new(@peer.host, @peer.port)
-    puts "======= opened socket ========"
-
     handshake_message = @meta_info.construct_handshake_message
-    puts "======= sending message ========"
-    puts handshake_message.inspect
-    client_socket.write(handshake_message)
-    client_socket.close_write # Send EOF after writing the request.
-
-    response = client_socket.read # Read until EOF to get the response.
-    puts "======= response received ========"
-    puts response.inspect
-    if (!response.nil?)
-      return -1
-    end
-
-    return response
+    peer = Peer.new(@peer.host, @peer.port, handshake_message)
+    peer.start!
   end
 
 end
