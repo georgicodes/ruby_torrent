@@ -4,7 +4,6 @@ class Peer < EM::Connection
     @host = host
     @port = port
     @handshake = handshake
-    @first_msg = true
 
     @am_choking = true
     @am_interested = false
@@ -13,17 +12,17 @@ class Peer < EM::Connection
   end
 
   def post_init
+    print "===> Sending Handshake to #{@host}:#{@port} <=== ".blue
+    puts @handshake.inspect.blue
     send_data(@handshake)
   end
 
   def receive_data(data)
-    puts "Received data on #{@host}:#{@port}"
     parse_message(data)
   end
 
   #TODO: refactor message parsing into own class
   def parse_handshake_response(response)
-    @first_msg = false
     # pstrlen = response.getbyte(0)
     # @handshake_respone = {
     #     :pstrlen => pstrlen,
@@ -32,25 +31,33 @@ class Peer < EM::Connection
     #     :info_hash => response.read(20),
     #     :peer_id => response.read(20)
     # }
-    puts "======= received handshake ========"
-    # ap @handshake_respone
+    print "===> Handshake response received on #{@host}:#{@port} <=== ".colorize(:yellow)
+    puts response.inspect.colorize(:yellow)
+
+    send_message(Message.construct_from_type(:interested).formatted_message)
+  end
+
+  def send_message(msg_to_send)
+    print "===> Sending message to #{@host}:#{@port} <=== ".blue
+    puts msg_to_send.inspect.blue
+    send_data(msg_to_send)
   end
 
   def parse_message(message)
-    p message
-    if (@first_msg)
+    if (message.include?("BitTorrent protocol"))
       parse_handshake_response(message)
     else
-      message_length = Message.parse_message_length(message)
-      print "message length #{message_length} "
-      msg_id = Message.parse_message_id(message)
-      print "message id #{msg_id}"
-      payload = Message.parse_payload(message)
-      print "payload #{payload}"
+      print "===> Received message on #{@host}:#{@port} <=== ".colorize(:light_green)
+      puts message.inspect.green
+      torrent_message = Message.construct_from_message(message)
+      ap torrent_message
+      # message_length = Message.parse_message_length(message)
+      # print "message length #{message_length} "
+      # msg_id = Message.parse_message_id(message)
+      # print "message id #{msg_id}"
+      # payload = Message.parse_payload(message)
+      # print "payload #{payload}"
     end
   end
-
-
-
 
 end

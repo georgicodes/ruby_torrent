@@ -46,9 +46,13 @@ class TorrentFile
     info = args["info"]
 
     @files = []
-    # TODO implement multi files as they are represented differently
-    info["files"].each do |item|
-      @files << FileToDownload.new(item["length"], item["path"])
+    if (info["files"])
+      # TODO implement multi files properly as they are represented differently
+      info["files"].each do |item|
+        @files << FileToDownload.new(item["length"], item["path"])
+      end
+    else
+      @files << FileToDownload.new(info["length"], "./")
     end
 
     @info_hash = init_sha_info_hash
@@ -81,7 +85,7 @@ class TorrentFile
       return res.body
     else
       puts "Cannot connect to torrent tracker."
-      return -1
+      return -1 #TODO: fix
     end
   end
 
@@ -123,10 +127,9 @@ class TorrentFile
   def send_handshake_to_peers
     @peers.each do |peer|
       begin
-        puts "peer host #{peer.host}:#{peer.port} "
         EM.connect(peer.host, peer.port, Peer, peer.host, peer.port, handshake_message)
       rescue EventMachine::ConnectionError
-        puts "error connecting to peer #{peer.host}:#{peer.port}"
+        puts "error connecting to peer #{peer.host}:#{peer.port}".red
       end
     end
   end

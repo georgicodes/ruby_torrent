@@ -1,33 +1,37 @@
 require_relative "spec_helper"
 
-describe "Message module" do
+describe "Message object" do
 
-  describe "#get_message_length" do
+  describe "#length" do
     it "takes a message and returns the length" do
+      message = Message.construct_from_message("\x00\x00\x00\x01\x05")
 
-      result = Message.parse_message_length("\x00\x00\x00\x01\x05")
+      result = message.length
       expect(result).to eql 1
     end
   end
 
-  describe "#parse_message_id" do
-    it "takes a message and returns the message id" do
+  describe "#type" do
+    it "takes a message and returns the message type" do
+      message = Message.construct_from_message("\x00\x00\x00\x01\x05")
 
-      result = Message.parse_message_id("\x00\x00\x00\x01\x05")
-      expect(result).to eql 5
+      result = message.type
+      expect(result).to eql :bitfield
     end
   end
 
-  describe "#parse_payload" do
+  describe "#payload" do
     it "takes a message and doesn't return the payload when there is none" do
+      message = Message.construct_from_message("\x00\x00\x00\x01\x02")
 
-      result = Message.parse_payload("\x00\x00\x00\x01\x01")
+      result = message.payload
       expect(result).to eql nil
     end
 
-    it "takes a message and returns the payload" do
+    it "takes a message and returns the payload when there is one" do
+      message = Message.construct_from_message("\x00\x00\x00\x05\x02\x00\x00\x00\x05")
 
-      result = Message.parse_payload("\x00\x00\x00\x05\x05\x00\x00\x00\x05")
+      result = message.payload
       expect(result).to eql "\x00\x00\x00\x05"
     end
   end
@@ -36,7 +40,7 @@ describe "Message module" do
     it "takes message bytes and returns a keep alive message" do
 
       result = Message.parse_message("\x00\x00\x00\x00")
-      expect(result).to be_a Message::TorrentMessage
+      expect(result).to be_a Message::Message
       expect(result.id).to be -1
       expect(result.type).to be :keep_alive
       expect(result.hasPayload).to be false
@@ -45,7 +49,7 @@ describe "Message module" do
     it "takes message bytes and returns a choke message" do
 
       result = Message.parse_message("\x00\x00\x00\x01\x00")
-      expect(result).to be_a Message::TorrentMessage
+      expect(result).to be_a Message::Message
       expect(result.id).to be 0
       expect(result.type).to be :choke
       expect(result.hasPayload).to be false
@@ -54,7 +58,7 @@ describe "Message module" do
     it "takes message bytes and returns an unchoke message" do
 
       result = Message.parse_message("\x00\x00\x00\x00\x01")
-      expect(result).to be_a Message::TorrentMessage
+      expect(result).to be_a Message::Message
       expect(result.id).to be 0
       expect(result.type).to be :choke
       expect(result.hasPayload).to be false

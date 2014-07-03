@@ -5,3 +5,5 @@ gem "rspec"
 gem "bencode"
 gem "awesome_print"
 gem 'eventmachine'
+gem 'colorize'
+gem 'bitarray'

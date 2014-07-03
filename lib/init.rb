@@ -6,6 +6,8 @@ require 'bencode'
 require 'eventmachine'
 require 'digest/sha1'
 require 'SecureRandom'
+require 'colorize'
+require 'bitarray'
 
 require_relative 'ruby_torrent/torrent_client'
 require_relative 'ruby_torrent/torrent_file'
@@ -17,11 +19,12 @@ require_relative 'ruby_torrent/peer'
 APP_ROOT = File.dirname(__FILE__)
 
 if __FILE__ == $0
-  torrent_file = '../files/karl_marx.torrent'
+  # torrent_file = '../files/karl_marx.torrent'
+  # torrent_file = '../files/speed_up_torrent.torrent'
+  torrent_file = '../files/flagfromserver.torrent'
   file_path = File.join(APP_ROOT, torrent_file)
-  puts File.exist?(file_path)
-  # torrent_client = Client.new('../files/flagfromserver.torrent')
   torrent_client = TorrentClient.create_from_files([file_path])
+
   # torrent_client = TorrentClient.new('files/flagfromserver.torrent')
   # torrent_client = TorrentClient.new('files/karl_marx.torrent')
   # torrent_client = TorrentClient.new('files/speed_up_torrents.torrent')

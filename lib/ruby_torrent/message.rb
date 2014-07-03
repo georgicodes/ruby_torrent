@@ -1,37 +1,71 @@
-module Message
+class Message
 
-  # class Msg
-  #   def self.construct_from_message(message)
-  #     msg_id, type = Message.parse_message(message)
-  #   end
-  #
-  #
-  # end
-
-  TorrentMessage = Struct.new(:id, :type, :hasPayload)
-
+  #TODO refactor message class: possibly have indiv classes eg Interested < Message
   MESSAGE_TYPES = {
-      "-1" => TorrentMessage.new(-1, :keep_alive, false),
-      "0" => TorrentMessage.new(0, :choke, false),
-      "1" => TorrentMessage.new(1, :unchoke, false),
-      "2" => TorrentMessage.new(1, :interested, false),
-      "3" => TorrentMessage.new(1, :not_interested, false),
-      "4" => TorrentMessage.new(1, :have, true),
-      "5" => TorrentMessage.new(1, :bitfield, true),
-      "6" => TorrentMessage.new(1, :request, true),
-      "7" => TorrentMessage.new(1, :piece, true),
-      "8" => TorrentMessage.new(1, :cancel, true),
-      "9" => TorrentMessage.new(1, :port, true)
+      "-1" => :keep_alive,
+      "0" => :choke,
+      "1" => :unchoke,
+      "2" => :interested,
+      "3" => :not_interested,
+      "4" => :have,
+      "5" => :bitfield,
+      "6" => :request,
+      "7" => :piece,
+      "8" => :cancel
   }
 
-  def Message.parse_message(message)
-    message_length = Message.parse_message_length(message_byte_array)
-    message_id = parse_message_id(message)
-    message = MESSAGE_TYPES[message_id.to_s]
-    return message
+  attr_reader :type, :length, :payload
+
+  def self.construct_from_message(message)
+    msg_id = self.parse_message_id(message)
+    type = MESSAGE_TYPES[msg_id.to_s]
+
+    length = self.parse_message_length(message)
+
+    payload = self.parse_payload(message)
+    self.new(msg_id, type, length, payload)
   end
 
-  def Message.parse_message_length(message)
+  def self.construct_from_type(type, payload=nil)
+    msg_id = MESSAGE_TYPES.key(type)
+    self.new(msg_id, type, 1) #TODO shouldn't have to set length in constructor
+  end
+
+  def initialize(msg_id, type, length, payload = nil)
+    @msg_id = msg_id
+    @type = type
+    @length = length
+    @payload = payload
+  end
+
+  def to_s
+    "Message type => #{@type} of length #{@length} with payload #{@payload}"
+  end
+
+  def formatted_message
+    return "\x00\x00\x00\x01\x02"
+    # length_as_formatted_bytes + @msg_id.chr
+  end
+
+  # pads left 0's for length of 4
+  def length_as_formatted_bytes
+    length_str = "%04d" % @length
+    result = ""
+
+    length_str.each_char do |value|
+      result += value.chr
+    end
+    return length_str
+  end
+
+  def self.parse_message_id(message)
+    id = message[4]
+    return -1 unless id
+    id.ord
+  end
+
+  #TODO should only be used for validation purposes
+  def self.parse_message_length(message)
     str = ""
     message[0...4].each_byte do |byte|
       str += byte.ord.to_s
@@ -39,22 +73,15 @@ module Message
     str.to_i
   end
 
-  def Message.parse_message_id(message)
-    id = message[4]
-    return -1 unless id
-    id.ord
-  end
-
   #TODO: refactor this is messy
-  def Message.parse_payload(message)
+  def self.parse_payload(message)
     length = Message.parse_message_length(message)
     return nil unless length > 1
 
     message_byte_array = message.bytes
     message_byte_array = message_byte_array.drop(5) # drop first 4 byte msg length + msg id
 
-    p message_byte_array
-    return message_byte_array.join("")
+    return message_byte_array
   end
 
 end
