@@ -1,0 +1,1 @@
+require_relative "../lib/ruby_torrent/message"

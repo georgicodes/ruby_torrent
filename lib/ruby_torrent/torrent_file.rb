@@ -59,7 +59,7 @@ class TorrentFile
     @length ||= calculate_length
   end
 
-  def connect_with_tracker_and_peers
+  def launch!
     tracker_response = connect_to_tracker
     @peers = init_peers(tracker_response)
     send_handshake_to_peers
