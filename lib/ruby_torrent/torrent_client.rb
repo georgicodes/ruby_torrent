@@ -1,5 +1,4 @@
 class TorrentClient
-
   PeerAddress = Struct.new(:host, :port)
 
   def initialize(path=nil)
@@ -10,17 +9,20 @@ class TorrentClient
       puts "File not useable, exiting."
       return -1
     end
-    @file_is_downloaded = false
   end
 
-  def launch!
+  def is_download_complete?
+    return @torrent_file.complete
+  end
+
+  def run_launch_tasks
     # TODO: refactor file is downloaded part
     # 1. connect to tracker
     tracker_response = connect_to_tracker
 
     # 2. decode response from tracker
-    peers = extract_peers_from_tracker_response(tracker_response)
-    @peer = peers[8]
+    @peers = extract_peers_from_tracker_response(tracker_response)
+    # @peer = @peers[8]
 
     # 3. send handshake message to single peer
     send_handshake_to_single_peer()
@@ -29,9 +31,6 @@ class TorrentClient
     # TODO: implement? Needs to be done for trackers that give peer dictionary
 
     # 5. send interested message to peer
-    loop do
-
-    end
   end
 
   # The length prefix is a four byte big-endian value.
@@ -41,8 +40,6 @@ class TorrentClient
     message_interested = Message::Interested.new
     ap "Interested message #{message_interested.to_s}"
     return message_interested
-    # client = MessageDispatcher::Client.new(@peer.host, @peer.port)
-    # client.request(message_interested.to_s)
   end
 
   def connect_to_tracker
@@ -101,8 +98,28 @@ class TorrentClient
 
   def send_handshake_to_single_peer()
     handshake_message = @torrent_file.construct_handshake_message
-    peer = Peer.new(@peer.host, @peer.port, handshake_message)
-    peer.start!
+    @peers.each do |peer|
+      begin
+        puts "peer host #{peer.host}:#{peer.port} "
+        EM.connect(peer.host, peer.port, Peer, peer.host, peer.port, handshake_message)
+      rescue EventMachine::ConnectionError
+        puts "error connecting to peer #{peer.host}:#{peer.port}"
+      end
+    end
+  end
+
+  def launch!
+    EM.run do
+
+      run_launch_tasks
+
+      EM.add_periodic_timer(60) do
+        if (is_download_complete?)
+          EM.stop
+        end
+      end
+
+    end
   end
 
 end

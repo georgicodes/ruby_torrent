@@ -4,4 +4,4 @@ source "https://rubygems.org"
 gem "rspec"
 gem "bencode"
 gem "awesome_print"
-gem "addressable"
+gem 'eventmachine'
