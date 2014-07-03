@@ -1,46 +1,53 @@
-require 'meta_info'
-require 'encoder'
-require 'file_utility'
-require 'message'
-require "awesome_print"
-require 'net/http'
-require 'cgi'
-require 'socket'
-require 'peer'
+class Connector < EM::Connection
+  def post_init
+    s = "\x13BitTorrent protocol\x00\x00\x00\x00\x00\x00\x00\x00*\x9D\x12\x91\xD3s\xE4\xA6\x90hBjQ\xA8\xFE\x85\x85\xDA\xFE>GK-Rc1Z_8Bd2M0yQEhV1"
+    send_data s
+  end
 
-class TorrentClient
+  def receive_data(data)
+    puts "Received data"
+    p data
+  end
+end
 
+class Client
   PeerAddress = Struct.new(:host, :port)
 
   def initialize(path=nil)
     if (FileUtility.file_useable?(path))
-      @meta_info = MetaInfo.create_from_file(path)
+      @torrent_file = TorrentFile.create_from_file(path)
       puts "MetaInfo created from file #{path}"
     else
       puts "File not useable, exiting."
       return -1
     end
-    @file_is_downloaded = false
   end
 
-  def launch!
+  def connect_to_peers
+    EM.connect("112.210.159.14", 51413, Connector)
+    # EM.connect("112.210.159.14", 51413, Connector)
+  end
+
+  def is_download_complete?
+    return @torrent_file.complete
+  end
+
+  def run_launch_tasks
     # TODO: refactor file is downloaded part
-    until @file_is_downloaded
-      # 1. connect to tracker
-      tracker_response = connect_to_tracker
+    # 1. connect to tracker
+    tracker_response = connect_to_tracker
 
-      # 2. decode response from tracker
-      peers = extract_peers_from_tracker_response(tracker_response)
-      @peer = peers[9]
+    # 2. decode response from tracker
+    @peers = extract_peers_from_tracker_response(tracker_response)
+    @peer = @peers[8]
 
-      # 3. send handshake message to single peer
-      send_handshake_to_single_peer()
+    # 3. send handshake message to single peer
+    send_handshake_to_single_peer()
 
-      # 4. error check handshake response from peer?
-      # TODO: implement? Needs to be done for trackers that give peer dictionary
+    # 4. error check handshake response from peer?
+    # TODO: implement? Needs to be done for trackers that give peer dictionary
 
-      # 5. send interested message to peer
-    end
+    # 5. send interested message to peer
   end
 
   # The length prefix is a four byte big-endian value.
@@ -50,8 +57,6 @@ class TorrentClient
     message_interested = Message::Interested.new
     ap "Interested message #{message_interested.to_s}"
     return message_interested
-    # client = MessageDispatcher::Client.new(@peer.host, @peer.port)
-    # client.request(message_interested.to_s)
   end
 
   def connect_to_tracker
@@ -74,10 +79,10 @@ class TorrentClient
   end
 
   def build_tracker_request_uri
-    uri = URI(@meta_info.announce)
-    params = {:info_hash => @meta_info.info_hash,
-              :peer_id => @meta_info.peer_id,
-              :left => @meta_info.length.to_s
+    uri = URI(@torrent_file.announce)
+    params = {:info_hash => @torrent_file.info_hash,
+              :peer_id => @torrent_file.peer_id,
+              :left => @torrent_file.length.to_s
     }
     uri.query = URI.encode_www_form(params)
     puts "Tracker URI is: #{uri}"
@@ -109,9 +114,24 @@ class TorrentClient
   end
 
   def send_handshake_to_single_peer()
-    handshake_message = @meta_info.construct_handshake_message
-    peer = Peer.new(@peer.host, @peer.port, handshake_message)
-    peer.start!
+    handshake_message = @torrent_file.construct_handshake_message
+    EM.connect(@peer.host, @peer.port, Peer, handshake_message)
+
+    # peer.start!
+  end
+
+  def launch!
+    EM.run do
+
+      run_launch_tasks
+
+      EM.add_periodic_timer(60) do
+        if (is_download_complete?)
+          EM.stop
+        end
+      end
+
+    end
   end
 
 end

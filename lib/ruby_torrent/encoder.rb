@@ -1,6 +1,3 @@
-require 'bencode'
-require "awesome_print"
-
 module Encoder
 
   def self.decode(data)

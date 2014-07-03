@@ -16,8 +16,7 @@ module FileUtility
   def self.read_contents_from_file(path)
     return "" unless FileUtility.file_useable?(path)
 
-    file_path = File.join(APP_ROOT, path)
-    File.read(file_path)
+    File.read(path)
   end
 
 

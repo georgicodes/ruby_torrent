@@ -1,9 +1,4 @@
-require "awesome_print"
-require 'digest/sha1'
-require 'SecureRandom'
-require 'encoder'
-
-class MetaInfo
+class TorrentFile
 
   #TODO: refactor this into own class? perhaps a message type class?
   # handshake: <pstrlen><pstr><reserved><info><peer_id>
@@ -19,9 +14,9 @@ class MetaInfo
   HANDSHAKE_PSTR = "BitTorrent protocol"
   HANDSHAKE_RESERVED = "\x00\x00\x00\x00\x00\x00\x00\x00"
 
-  TorrentFile = Struct.new(:length, :path)
+  FileToDownload = Struct.new(:length, :path)
 
-  attr_reader :announce, :length, :peer_id, :info_hash
+  attr_reader :announce, :length, :peer_id, :info_hash, :complete
 
   def self.create_from_file(path=nil)
     encoded_file_contents = FileUtility.read_contents_from_file(path)
@@ -37,6 +32,7 @@ class MetaInfo
   end
 
   def init_base_args(args)
+    @complete = false
     @announce = args["announce"]
     @locale = args["locale"]
     @title = args["title"]
@@ -51,7 +47,7 @@ class MetaInfo
     @files = []
     # TODO implement multi files as they are represented differently
     info["files"].each do |item|
-      @files << TorrentFile.new(item["length"], item["path"])
+      @files << FileToDownload.new(item["length"], item["path"])
     end
 
     @info_hash = init_sha_info_hash
