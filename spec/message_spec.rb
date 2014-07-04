@@ -2,6 +2,15 @@ require_relative "spec_helper"
 
 describe "Message object" do
 
+  describe "#length2" do
+    it "takes a message and returns the length" do
+      message = Interested.new().to_s
+      print message
+      result = message.msg_id
+      expect(result).to eql 1
+    end
+  end
+
   describe "#length" do
     it "takes a message and returns the length" do
       message = Message.construct_from_message("\x00\x00\x00\x01\x05")
