@@ -11,7 +11,7 @@ class BaseMessage
     @payload = nil
   end
 
-  def to_s
+  def formatted_message
     length_prefix + @message_id.chr
   end
 
@@ -32,7 +32,15 @@ class BaseMessage
   end
 end
 
-class Choke < BaseMessage
+class ChokeMessage < BaseMessage
+  MSG_ID = 0
+
+  def initialize
+    super(MSG_ID)
+  end
+end
+
+class UnchokeMessage < BaseMessage
   MSG_ID = 1
 
   def initialize
@@ -40,7 +48,7 @@ class Choke < BaseMessage
   end
 end
 
-class Interested < BaseMessage
+class InterestedMessage < BaseMessage
   MSG_ID = 2
 
   def initialize
@@ -48,7 +56,7 @@ class Interested < BaseMessage
   end
 end
 
-class NotInterested < BaseMessage
+class NotInterestedMessage < BaseMessage
   MSG_ID = 3
 
   def initialize
@@ -56,7 +64,7 @@ class NotInterested < BaseMessage
   end
 end
 
-class Have < BaseMessage
+class HaveMessage < BaseMessage
   MSG_ID = 4
 
   def initialize(payload)
@@ -65,20 +73,40 @@ class Have < BaseMessage
 end
 
 class MessageFactory
-  def self.new_from_bytes(message)
+  def self.construct_from_bytes(message)
 
     message_id = self.parse_message_id(message)
     # type = MESSAGE_TYPES[msg_id.to_s]
     # length = self.parse_message_length(message)
-    # payload = self.parse_payload(message)
 
     case message_id
-      when message_id == 1
-        return Choke.new
-      when message_id == 2
-        return Interested.new
-      when message_id == 3
-        return NotInterested.new
+      when 0
+        return ChokeMessage.new
+      when 1
+        return UnchokeMessage.new
+      when 2
+        return InterestedMessage.new
+      when 3
+        return NotInterestedMessage.new
+      when 4
+        payload = self.parse_payload(message)
+        return HaveMessage.new(payload)
+      when 5
+        return BitfieldMessage.new
+      when 6
+        payload = self.parse_payload(message)
+        return RequestMessage.new(payload)
+      when 7
+        payload = self.parse_payload(message)
+        return PieceMessage.new(payload)
+      when 8
+        payload = self.parse_payload(message)
+        return CancelMessage.new(payload)
+      when 9
+        payload = self.parse_payload(message)
+        PortMessage.new(payload)
+      else
+        puts "nothing"
     end
   end
 
@@ -88,7 +116,7 @@ class MessageFactory
     id.ord
   end
 
-  # #TODO should only be used for validation purposes
+  # # TODO should only be used for validation purposes
   # def self.parse_message_length(message)
   #   str = ""
   #   message[0...4].each_byte do |byte|
@@ -96,30 +124,31 @@ class MessageFactory
   #   end
   #   str.to_i
   # end
-  #
-  # #TODO: refactor this is messy
-  # def self.parse_payload(message)
-  #   length = Message.parse_message_length(message)
-  #   return nil unless length > 1
-  #
-  #   message_byte_array = message.bytes
-  #   message_byte_array = message_byte_array.drop(5) # drop first 4 byte msg length + msg id
-  #
-  #   return message_byte_array
-  # end
+
+  # TODO refactor this is messy
+  def self.parse_payload(message)
+    length = Message.parse_message_length(message)
+    return nil unless length > 1
+
+    message_byte_array = message.bytes
+    message_byte_array = message_byte_array.drop(5) # drop first 4 byte msg length + msg id
+
+    return message_byte_array
+  end
 end
 
-temp = Interested.new()
-p temp.to_s
-p temp.message_id
-p temp.length_prefix
-puts
-
-mf = MessageFactory.new_from_bytes("")
-p mf.to_s
-p mf.message_id
-p mf.length_prefix
+# # temp = Interested.new()
+# # p temp.to_s
+# # p temp.message_id
+# # p temp.length_prefix
+# # puts
 #
+# mf = MessageFactory.new_from_bytes("\x00\x00\x00\x01\x02")
+# p mf.class
+# p mf.to_s
+# p mf.message_id
+# p mf.length_prefix
+# #
 #
 # class Message
 #

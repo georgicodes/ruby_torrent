@@ -34,7 +34,7 @@ class Peer < EM::Connection
     print "===> Handshake response received on #{@host}:#{@port} <=== ".colorize(:yellow)
     puts response.inspect.colorize(:yellow)
 
-    send_message(Message.construct_from_type(:interested).formatted_message)
+    send_message(InterestedMessage.new().formatted_message)
   end
 
   def send_message(msg_to_send)
@@ -49,7 +49,7 @@ class Peer < EM::Connection
     else
       print "===> Received message on #{@host}:#{@port} <=== ".colorize(:light_green)
       puts message.inspect.green
-      torrent_message = Message.construct_from_message(message)
+      torrent_message = MessageFactory.construct_from_bytes(message)
       ap torrent_message
       # message_length = Message.parse_message_length(message)
       # print "message length #{message_length} "
