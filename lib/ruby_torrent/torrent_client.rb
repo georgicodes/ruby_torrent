@@ -13,7 +13,7 @@ class TorrentClient
     end
 
     if (torrent_files.length == 0)
-      puts "File not useable, exiting."
+      puts "No files useable, exiting."
       raise ArgumentError
     end
 

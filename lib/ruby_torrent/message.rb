@@ -1,3 +1,21 @@
+module MsgUtil
+
+  # converts int to 4 byte (32bit) big-endian byte string
+  def self.pack_int_to_four_bytes_str(value)
+    [value].pack("N")
+  end
+
+  # converts single int to 1 byte (8bit) string
+  def self.pack_int_to_single_byte_str(value)
+    value.chr
+  end
+
+  def self.unpack_int_from_bytes(bytes)
+    bytes.unpack("N")[0]
+  end
+
+end
+
 class BaseMessage
 
   attr_reader :message_id, :payload
@@ -8,18 +26,15 @@ class BaseMessage
   end
 
   def formatted_message
-    length_prefix + @message_id.chr
+    formatted_length + formatted_id
   end
 
-  def length_prefix
-    length_str = "%04d" % length
-    result = []
+  def formatted_length
+    MsgUtil.pack_int_to_four_bytes_str(length)
+  end
 
-    length_str.split("").each do |value|
-      result << value.to_i.chr
-    end
-
-    result.join("")
+  def formatted_id
+    MsgUtil.pack_int_to_single_byte_str(@message_id)
   end
 
   def length
@@ -84,7 +99,8 @@ class HaveMessage < BaseMessage
   end
 
   def action_message(peer)
-    # update bitfield for peer with have
+    # if chocked, update bitfield for peer with have's
+    # if unchoked, then this is data so store it
   end
 end
 
@@ -107,16 +123,80 @@ end
 class RequestMessage < BaseMessage
   MSG_ID = 6
 
-  def initialize(payload)
+  attr_reader :piece_index, :byte_offset, :block_length
+
+  def initialize(args)
+    payload = args[:payload] || nil
     super(MSG_ID, payload)
+
+    if !payload
+      @piece_index = args[:piece_index]
+      @byte_offset = args[:byte_offset]
+      @block_length = args[:block_length]
+      @payload ||= formatted_request_message
+    else
+      # TODO extract values from payload
+      @piece_index = nil
+      @byte_offset = nil
+      @block_length = nil
+    end
   end
+
+  def formatted_message
+    super + formatted_request_message
+  end
+
+  def formatted_request_message
+    formatted_piece_index + formatted_byte_offset + formatted_block_length
+  end
+
+  private
+    def formatted_piece_index
+      MsgUtil.pack_int_to_four_bytes_str(@piece_index)
+    end
+
+    def formatted_byte_offset
+      MsgUtil.pack_int_to_four_bytes_str(@byte_offset)
+    end
+
+    def formatted_block_length
+      MsgUtil.pack_int_to_four_bytes_str(@block_length)
+    end
 end
 
+# The piece message is variable length, where X is the length of the block. The payload contains the following information:
+# index: integer specifying the zero-based piece index
+# begin: integer specifying the zero-based byte offset within the piece
+# block: block of data, which is a subset of the piece specified by index.
 class PieceMessage < BaseMessage
   MSG_ID = 7
 
   def initialize(payload)
     super(MSG_ID, payload)
+  end
+
+  def self.build_from_payload(message)
+    stream = StringIO.new(message)
+
+    length = MsgUtil.unpack_int_from_bytes(stream.read(4))
+    puts '#############'.red
+    p "length #{length}"
+
+    stream.read(1) # msg_id
+    piece_index = stream.read(4)
+    p "piece_index #{piece_index}"
+
+    byte_offset = stream.read(4)
+    p "byte_offset #{byte_offset}"
+
+    data = stream.read(length - 9)
+    p "data #{data}"
+
+    return self.new(message)
+  end
+
+  def action_message(peer)
+    # handle storing message data from peer
   end
 end
 
@@ -146,32 +226,32 @@ class MessageFactory
     message_id = self.parse_message_id(message)
 
     case message_id
-    when 0
-      return ChokeMessage.new
-    when 1
-      return UnchokeMessage.new
-    when 2
-      return InterestedMessage.new
-    when 3
-      return NotInterestedMessage.new
-    when 4
-      payload = self.parse_payload(message)
-      return HaveMessage.new(payload)
-    when 5
-      payload = self.parse_payload(message)
-      return BitfieldMessage.new(payload)
-    when 6
-      payload = self.parse_payload(message)
-      return RequestMessage.new(payload)
-    when 7
-      payload = self.parse_payload(message)
-      return PieceMessage.new(payload)
-    when 8
-      payload = self.parse_payload(message)
-      return CancelMessage.new(payload)
-    when 9
-      payload = self.parse_payload(message)
-      PortMessage.new(payload)
+      when 0
+        return ChokeMessage.new
+      when 1
+        return UnchokeMessage.new
+      when 2
+        return InterestedMessage.new
+      when 3
+        return NotInterestedMessage.new
+      when 4
+        payload = self.parse_payload(message)
+        return HaveMessage.new(payload)
+      when 5
+        payload = self.parse_payload(message)
+        return BitfieldMessage.new(payload)
+      when 6
+        payload = self.parse_payload(message)
+        return RequestMessage.new(payload)
+      when 7
+        # payload = self.parse_payload(message)
+        return PieceMessage.build_from_payload(message)
+      when 8
+        payload = self.parse_payload(message)
+        return CancelMessage.new(payload)
+      when 9
+        payload = self.parse_payload(message)
+        PortMessage.new(payload)
     end
   end
 

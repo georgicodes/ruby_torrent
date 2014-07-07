@@ -18,15 +18,12 @@ require_relative 'ruby_torrent/peer'
 
 APP_ROOT = File.dirname(__FILE__)
 
+# TODO read from argv isntead of hardcoding files
 if __FILE__ == $0
   # torrent_file = '../files/karl_marx.torrent'
-  # torrent_file = '../files/speed_up_torrent.torrent'
+  # torrent_file = '../files/speed_up_torrents.torrent'
   torrent_file = '../files/flagfromserver.torrent'
   file_path = File.join(APP_ROOT, torrent_file)
   torrent_client = TorrentClient.create_from_files([file_path])
-
-  # torrent_client = TorrentClient.new('files/flagfromserver.torrent')
-  # torrent_client = TorrentClient.new('files/karl_marx.torrent')
-  # torrent_client = TorrentClient.new('files/speed_up_torrents.torrent')
   torrent_client.launch!
 end
