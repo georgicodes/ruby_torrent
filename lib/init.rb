@@ -15,6 +15,8 @@ require_relative 'ruby_torrent/encoder'
 require_relative 'ruby_torrent/file_utility'
 require_relative 'ruby_torrent/message'
 require_relative 'ruby_torrent/peer'
+require_relative 'ruby_torrent/buffer_handler'
+require_relative 'ruby_torrent/handshake'
 
 APP_ROOT = File.dirname(__FILE__)
 

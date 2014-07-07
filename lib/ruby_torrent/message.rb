@@ -41,6 +41,19 @@ class BaseMessage
     return 1 unless @payload
     return 1 + @payload.length
   end
+
+  def inspect
+    print self.class.name + " with ID: " + @message_id.to_s
+    p " and payload: " + @payload unless !@payload
+  end
+end
+
+class HandshakeMessage < BaseMessage
+  MSG_ID = -1
+
+  def initialize(payload)
+    super(MSG_ID, payload)
+  end
 end
 
 class ChokeMessage < BaseMessage
@@ -48,10 +61,6 @@ class ChokeMessage < BaseMessage
 
   def initialize
     super(MSG_ID)
-  end
-
-  def action_message(peer)
-    peer.peer_choking = true
   end
 end
 
@@ -61,10 +70,6 @@ class UnchokeMessage < BaseMessage
   def initialize
     super(MSG_ID)
   end
-
-  def action_message(peer)
-    peer.peer_choking = false
-  end
 end
 
 class InterestedMessage < BaseMessage
@@ -72,10 +77,6 @@ class InterestedMessage < BaseMessage
 
   def initialize
     super(MSG_ID)
-  end
-
-  def action_message(peer)
-    peer.peer_interested = true
   end
 end
 
@@ -85,10 +86,6 @@ class NotInterestedMessage < BaseMessage
   def initialize
     super(MSG_ID)
   end
-
-  def action_message(peer)
-    peer.peer_interested = false
-  end
 end
 
 class HaveMessage < BaseMessage
@@ -97,11 +94,6 @@ class HaveMessage < BaseMessage
   def initialize(payload)
     super(MSG_ID, payload)
   end
-
-  def action_message(peer)
-    # if chocked, update bitfield for peer with have's
-    # if unchoked, then this is data so store it
-  end
 end
 
 class BitfieldMessage < BaseMessage
@@ -109,10 +101,6 @@ class BitfieldMessage < BaseMessage
 
   def initialize(payload)
     super(MSG_ID, payload)
-  end
-
-  def action_message(peer)
-    # set bitarray  for peer
   end
 end
 
@@ -193,10 +181,6 @@ class PieceMessage < BaseMessage
     p "data #{data}"
 
     return self.new(message)
-  end
-
-  def action_message(peer)
-    # handle storing message data from peer
   end
 end
 

@@ -12,21 +12,82 @@ class Peer < EM::Connection
     @peer_choking = true
     @peer_interested = false # false when remote peer is not interested in requesting blocks from this client
 
-    @message_bytes = ""
+    @buff_handler = BufferHandler.new
   end
 
+  # TODO should this handshake logic be moved until connection is 100% established?
   def post_init
-    print "===> Sending Handshake to #{@host}:#{@port} <=== ".blue
+    send_handshake
+  end
+
+  def send_handshake
+    print "===> Sending handshake to #{@host}:#{@port} <=== ".blue
     puts @handshake.inspect.blue
     send_data(@handshake)
   end
 
+  # Updates BufferHandler with data from incoming stream and processes complete messages
   def receive_data(data_received)
-    parse_message(data_received)
+    @buff_handler << data_received
+    print "===> Received message from #{@host}:#{@port} <=== ".colorize(:light_green)
+    puts data_received.inspect.colorize(:light_green)
+
+    @buff_handler.incoming_messages.each do |message|
+      handle_message(message)
+    end
   end
 
-  #TODO: refactor message parsing into own class
-  def parse_handshake_response_and_send_interested_message(response)
+  def send_message(msg_to_send)
+    print "===> Sending message to #{@host}:#{@port} <=== ".blue
+    puts msg_to_send.inspect.blue
+    send_data(msg_to_send)
+  end
+
+  def handle_message(torrent_message)
+    return unless torrent_message
+    ap torrent_message
+
+    case torrent_message.class
+      when HandshakeMessage
+        handle_handshake_message(torrent_message)
+      when ChokeMessage
+        @peer_choking = true
+      when UnchokeMessage
+        @peer_choking = false
+        puts "Peer no longer choking, may request blocks"
+        msg = request_next_block
+        send_message(msg)
+      when InterestedMessage
+        @peer_interested = true
+      when NotInterestedMessage
+        @peer_interested = false
+      when HaveMessage
+        # if chocked, update bitfield for peer with have's
+        # if unchoked, then this is data so store it
+        puts "Have"
+      when BitfieldMessage
+        # set bitarray  for peer
+        puts "Bitfield"
+      when RequestMessage
+        # send to peer
+        puts "Request received for files"
+      when PieceMessage
+        # handle storing message data from peer
+        puts "Piece received!"
+      when CancelMessage
+        puts "Cancel"
+      when PortMessage
+        puts "Port"
+    end
+  end
+
+  def handle_handshake_message(torrent_message)
+    parse_handshake_response(torrent_message.payload)
+    # TODO validate handshake
+    send_message(InterestedMessage.new.formatted_message)
+  end
+
+  def parse_handshake_response(response)
     stream = StringIO.new(response)
     pstrlen = stream.getbyte
     @handshake_respone = {
@@ -37,47 +98,8 @@ class Peer < EM::Connection
         :peer_id => stream.read(20)
     }
     ap @handshake_respone
-    print "===> Handshake response received on #{@host}:#{@port} <=== ".colorize(:yellow)
-    puts response.inspect.colorize(:yellow)
-
-    send_message(InterestedMessage.new.formatted_message)
   end
 
-  def send_message(msg_to_send)
-    print "===> Sending message to #{@host}:#{@port} <=== ".blue
-    puts msg_to_send.inspect.blue
-    send_data(msg_to_send)
-  end
-
-  def parse_message(data_received)
-    # TODO can this check be a bit cleaner?
-    if (data_received.include?("BitTorrent protocol"))
-      handshake_response = data_received.read(68) # TODO refactor magic number
-      parse_handshake_response_and_send_interested_message(handshake_response)
-    end
-
-    print "===> Received message on #{@host}:#{@port} <=== ".colorize(:light_green)
-    puts message.inspect.green
-    torrent_message = MessageFactory.construct_from_bytes(message)
-    handle_message(torrent_message)
-  end
-
-  def handle_message(torrent_message)
-    return unless torrent_message
-    ap torrent_message
-    torrent_message.action_message(self)
-  end
-
-  def peer_choking=(isChoking)
-    @peer_choking = isChoking
-
-    if (!@peer_choking)
-      puts "Peer no longer choking, may request blocks"
-
-      msg = request_next_block
-      send_message(msg)
-    end
-  end
   BLOCK_SIZE = 14**2
 
   def request_next_block
