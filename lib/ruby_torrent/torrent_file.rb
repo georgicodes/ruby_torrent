@@ -66,10 +66,10 @@ class TorrentFile
   def launch!
     tracker_response = connect_to_tracker
     @peers = init_peers(tracker_response)
-    send_handshake_to_peers
+    connect_with_peers
   end
 
-  #TODO: Event Machine for HTTP get?
+  #TODO Event Machine for HTTP get?
   def connect_to_tracker
     # connect via HTTP to tracker
     # tracker hold info about torrent and peers
@@ -124,7 +124,7 @@ class TorrentFile
     return ip_addresses
   end
 
-  def send_handshake_to_peers
+  def connect_with_peers
     @peers.each do |peer|
       begin
         EM.connect(peer.host, peer.port, Peer, peer.host, peer.port, handshake_message)

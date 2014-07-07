@@ -31,7 +31,7 @@ class TorrentClient
   def launch!
     EM.run do
 
-      # TODO: accommodate multiple torrent files
+      # TODO accommodate multiple torrent files
       @torrent_files.first.launch!
 
       EM.add_periodic_timer(60) do

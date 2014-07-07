@@ -22,7 +22,7 @@ class Peer < EM::Connection
   end
 
   #TODO: refactor message parsing into own class
-  def parse_handshake_response(response)
+  def parse_handshake_response_and_send_interested_message(response)
     # pstrlen = response.getbyte(0)
     # @handshake_respone = {
     #     :pstrlen => pstrlen,
@@ -45,18 +45,26 @@ class Peer < EM::Connection
 
   def parse_message(message)
     if (message.include?("BitTorrent protocol"))
-      parse_handshake_response(message)
-    else
-      print "===> Received message on #{@host}:#{@port} <=== ".colorize(:light_green)
-      puts message.inspect.green
-      torrent_message = MessageFactory.construct_from_bytes(message)
-      ap torrent_message
-      # message_length = Message.parse_message_length(message)
-      # print "message length #{message_length} "
-      # msg_id = Message.parse_message_id(message)
-      # print "message id #{msg_id}"
-      # payload = Message.parse_payload(message)
-      # print "payload #{payload}"
+      parse_handshake_response_and_send_interested_message(message)
+      return
+    end
+
+    print "===> Received message on #{@host}:#{@port} <=== ".colorize(:light_green)
+    puts message.inspect.green
+    torrent_message = MessageFactory.construct_from_bytes(message)
+    handle_message(torrent_message)
+  end
+
+  def handle_message(torrent_message)
+    ap torrent_message
+    torrent_message.action_message(self)
+  end
+
+  def peer_choking=(isChoking)
+    @peer_choking = isChoking
+
+    if (!@peer_choking)
+      puts "No longer choking, request blocks"
     end
   end
 
