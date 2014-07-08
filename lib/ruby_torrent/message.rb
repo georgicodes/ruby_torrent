@@ -42,12 +42,15 @@ class BaseMessage
     return 1 + @payload.length
   end
 
+  def summary
+    {
+        :class_name => self.class.name,
+        :message_id => @message_id
+    }
+  end
+
   def inspect
-    print (self.class.name + " with ID: " + @message_id.to_s).colorize(:light_yellow)
-    if (@payload)
-      print " and Payload: ".colorize(:light_yellow)
-      print @payload.inspect.colorize(:light_yellow)
-    end
+    ap summary
   end
 end
 
@@ -150,6 +153,15 @@ class RequestMessage < BaseMessage
     formatted_piece_index + formatted_byte_offset + formatted_block_length
   end
 
+  def summary
+    {
+        :class_name => self.class.name,
+        :message_id => @message_id,
+        :piece_index => @piece_index,
+        :block_length => @block_length
+    }
+  end
+
   private
   def formatted_piece_index
     MsgUtil.pack_int_to_four_bytes_str(@piece_index)
@@ -162,6 +174,7 @@ class RequestMessage < BaseMessage
   def formatted_block_length
     MsgUtil.pack_int_to_four_bytes_str(@block_length)
   end
+
 end
 
 # The piece message is variable length, where X is the length of the block. The payload contains the following information:
@@ -170,6 +183,8 @@ end
 # block: block of data, which is a subset of the piece specified by index.
 class PieceMessage < BaseMessage
   MSG_ID = 7
+
+  attr_reader :piece_index, :byte_offset, :block_data
 
   def initialize(args)
     payload = args[:payload]
@@ -191,6 +206,16 @@ class PieceMessage < BaseMessage
     args[:byte_offset] = stream.read(4)
     args[:block_data] = stream.read(length - 9)
     return self.new(args)
+  end
+
+
+  def summary
+    {
+        :class_name => self.class.name,
+        :message_id => @message_id,
+        :piece_index => @piece_index,
+        :byte_offset => @byte_offset
+    }
   end
 end
 

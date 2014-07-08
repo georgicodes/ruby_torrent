@@ -17,6 +17,7 @@ require_relative 'ruby_torrent/message'
 require_relative 'ruby_torrent/peer'
 require_relative 'ruby_torrent/buffer_handler'
 require_relative 'ruby_torrent/handshake'
+require_relative 'ruby_torrent/piece_handler'
 
 APP_ROOT = File.dirname(__FILE__)
 
@@ -25,6 +26,8 @@ if __FILE__ == $0
   # torrent_file = '../files/karl_marx.torrent'
   # torrent_file = '../files/speed_up_torrents.torrent'
   torrent_file = '../files/flagfromserver.torrent'
+  # torrent_file = '../files/SuspiciousTurnVol3 [mininova].torrent'
+  # torrent_file = '../files/TheEdenEffecy.torrent'
   file_path = File.join(APP_ROOT, torrent_file)
   torrent_client = TorrentClient.create_from_files([file_path])
   torrent_client.launch!
