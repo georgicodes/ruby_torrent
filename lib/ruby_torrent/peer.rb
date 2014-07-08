@@ -32,7 +32,7 @@ class Peer < EM::Connection
     print "===> Received message from #{@host}:#{@port} <=== ".colorize(:light_green)
     puts data_received.inspect.colorize(:light_green)
 
-    @buff_handler.incoming_messages.each do |message|
+    @buff_handler.parsed_messages.each do |message|
       handle_message(message)
     end
   end
@@ -45,39 +45,39 @@ class Peer < EM::Connection
 
   def handle_message(torrent_message)
     return unless torrent_message
-    ap torrent_message
+    puts torrent_message.inspect
 
-    case torrent_message.class
-      when HandshakeMessage
-        handle_handshake_message(torrent_message)
-      when ChokeMessage
-        @peer_choking = true
-      when UnchokeMessage
-        @peer_choking = false
-        puts "Peer no longer choking, may request blocks"
-        msg = request_next_block
-        send_message(msg)
-      when InterestedMessage
-        @peer_interested = true
-      when NotInterestedMessage
-        @peer_interested = false
-      when HaveMessage
-        # if chocked, update bitfield for peer with have's
-        # if unchoked, then this is data so store it
-        puts "Have"
-      when BitfieldMessage
-        # set bitarray  for peer
-        puts "Bitfield"
-      when RequestMessage
-        # send to peer
-        puts "Request received for files"
-      when PieceMessage
-        # handle storing message data from peer
-        puts "Piece received!"
-      when CancelMessage
-        puts "Cancel"
-      when PortMessage
-        puts "Port"
+    case torrent_message
+    when HandshakeMessage
+      handle_handshake_message(torrent_message)
+    when ChokeMessage
+      @peer_choking = true
+    when UnchokeMessage
+      @peer_choking = false
+      puts "Peer no longer choking, may request blocks"
+      msg = request_next_block
+      send_message(msg)
+    when InterestedMessage
+      @peer_interested = true
+    when NotInterestedMessage
+      @peer_interested = false
+    when HaveMessage
+      # if chocked, update bitfield for peer with have's
+      # if unchoked, then this is data so store it
+      puts "Handle have message"
+    when BitfieldMessage
+      # set bitarray  for peer
+      puts "Handle bitfield message"
+    when RequestMessage
+      # send to peer
+      puts "Request received for files"
+    when PieceMessage
+      # handle storing message data from peer
+      puts "Piece received!"
+    when CancelMessage
+      puts "Cancel"
+    when PortMessage
+      puts "Port"
     end
   end
 

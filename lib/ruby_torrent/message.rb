@@ -22,7 +22,7 @@ class BaseMessage
 
   def initialize(message_id, payload = nil)
     @message_id = message_id
-    @payload = nil
+    @payload = payload
   end
 
   def formatted_message
@@ -43,8 +43,19 @@ class BaseMessage
   end
 
   def inspect
-    print self.class.name + " with ID: " + @message_id.to_s
-    p " and payload: " + @payload unless !@payload
+    print (self.class.name + " with ID: " + @message_id.to_s).colorize(:light_yellow)
+    if (@payload)
+      print " and Payload: ".colorize(:light_yellow)
+      print @payload.inspect.colorize(:light_yellow)
+    end
+  end
+end
+
+class KeepAliveMessage < BaseMessage
+  MSG_ID = -2
+
+  def initialize
+    super(MSG_ID)
   end
 end
 
@@ -113,6 +124,7 @@ class RequestMessage < BaseMessage
 
   attr_reader :piece_index, :byte_offset, :block_length
 
+  # TODO refactor like PieceMessage
   def initialize(args)
     payload = args[:payload] || nil
     super(MSG_ID, payload)
@@ -139,17 +151,17 @@ class RequestMessage < BaseMessage
   end
 
   private
-    def formatted_piece_index
-      MsgUtil.pack_int_to_four_bytes_str(@piece_index)
-    end
+  def formatted_piece_index
+    MsgUtil.pack_int_to_four_bytes_str(@piece_index)
+  end
 
-    def formatted_byte_offset
-      MsgUtil.pack_int_to_four_bytes_str(@byte_offset)
-    end
+  def formatted_byte_offset
+    MsgUtil.pack_int_to_four_bytes_str(@byte_offset)
+  end
 
-    def formatted_block_length
-      MsgUtil.pack_int_to_four_bytes_str(@block_length)
-    end
+  def formatted_block_length
+    MsgUtil.pack_int_to_four_bytes_str(@block_length)
+  end
 end
 
 # The piece message is variable length, where X is the length of the block. The payload contains the following information:
@@ -159,28 +171,26 @@ end
 class PieceMessage < BaseMessage
   MSG_ID = 7
 
-  def initialize(payload)
+  def initialize(args)
+    payload = args[:payload]
+    @piece_index = args[:piece_index]
+    @byte_offset = args[:byte_offset]
+    @block_data = args[:block_data]
     super(MSG_ID, payload)
   end
 
   def self.build_from_payload(message)
+    args = {}
+    args[:payload] = message[5..-1]
+
     stream = StringIO.new(message)
-
     length = MsgUtil.unpack_int_from_bytes(stream.read(4))
-    puts '#############'.red
-    p "length #{length}"
-
     stream.read(1) # msg_id
-    piece_index = stream.read(4)
-    p "piece_index #{piece_index}"
 
-    byte_offset = stream.read(4)
-    p "byte_offset #{byte_offset}"
-
-    data = stream.read(length - 9)
-    p "data #{data}"
-
-    return self.new(message)
+    args[:piece_index] = stream.read(4)
+    args[:byte_offset] = stream.read(4)
+    args[:block_data] = stream.read(length - 9)
+    return self.new(args)
   end
 end
 
@@ -207,6 +217,9 @@ end
 class MessageFactory
   def self.construct_from_bytes(message)
 
+    length = self.parse_message_length(message)
+    return KeepAliveMessage.new unless length > 0
+
     message_id = self.parse_message_id(message)
 
     case message_id
@@ -228,7 +241,6 @@ class MessageFactory
         payload = self.parse_payload(message)
         return RequestMessage.new(payload)
       when 7
-        # payload = self.parse_payload(message)
         return PieceMessage.build_from_payload(message)
       when 8
         payload = self.parse_payload(message)
